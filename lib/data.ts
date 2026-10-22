@@ -260,8 +260,8 @@ export const faqs: FAQ[] = [
 export const businessInfo = {
   name: 'Laxman Phool Bhandar',
   tagline: 'Artisanal Floral Couture & Celebration Decor',
-  phone: '+91 85390 67784',
-  rawPhone: '918539067784',
+  phone: '+91 99053 16880',
+  rawPhone: '919905316880',
   email: 'hello@laxmanphoolbhandar.com',
   address: 'Main Market Road, Near City Plaza, Floral Hub',
   city: 'Patna, Bihar',

@@ -1,7 +1,7 @@
 'use client';
 
 export default function WhatsAppButton() {
-  const rawNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '918539067784').replace(/\D/g, '');
+  const rawNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919905316880').replace(/\D/g, '');
   const number = rawNumber.length === 10 ? `91${rawNumber}` : rawNumber;
   const message = encodeURIComponent('Hello Laxman Phool Bhandar! I would like to inquire about flowers and decoration services.');
   const whatsappUrl = `https://wa.me/${number}?text=${message}`;
