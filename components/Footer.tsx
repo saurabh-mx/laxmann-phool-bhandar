@@ -1,11 +1,25 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { businessInfo, services } from '@/lib/data';
+import { businessInfo as defaultInfo, services } from '@/lib/data';
 
 export default function Footer() {
   const pathname = usePathname();
+  const [info, setInfo] = useState(defaultInfo);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.businessInfo) {
+          setInfo(data.businessInfo);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   if (pathname?.startsWith('/admin')) {
     return null;
   }
@@ -57,7 +71,7 @@ export default function Footer() {
               <li><Link href="/book">Custom Inquiry & WhatsApp</Link></li>
               <li>
                 <a
-                  href={`https://wa.me/${businessInfo.rawPhone}?text=${encodeURIComponent('Hello! I would like to request a bespoke quote.')}`}
+                  href={`https://wa.me/${info.rawPhone}?text=${encodeURIComponent('Hello! I would like to request a bespoke quote.')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -75,14 +89,24 @@ export default function Footer() {
                 <span className="contact-icon">📍</span>
                 <div>
                   <strong>Shop & Studio:</strong>
-                  <p>{businessInfo.address}, {businessInfo.city}</p>
+                  <p>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${info.address}, ${info.city}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="footer-address-link"
+                      title="Open location in Google Maps"
+                    >
+                      {info.address}, {info.city} ↗
+                    </a>
+                  </p>
                 </div>
               </div>
               <div className="contact-item">
                 <span className="contact-icon">🕒</span>
                 <div>
                   <strong>Operating Hours:</strong>
-                  <p>{businessInfo.hours}</p>
+                  <p>{info.hours}</p>
                 </div>
               </div>
               <div className="contact-item">
@@ -90,8 +114,8 @@ export default function Footer() {
                 <div>
                   <strong>Phone / WhatsApp:</strong>
                   <p>
-                    <a href={`tel:${businessInfo.rawPhone}`} className="footer-link-highlight">
-                      {businessInfo.phone}
+                    <a href={`tel:${info.rawPhone}`} className="footer-link-highlight">
+                      {info.phone}
                     </a>
                   </p>
                 </div>
