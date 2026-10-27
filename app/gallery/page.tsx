@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import GallerySection from '@/components/GallerySection';
 import { getStoreDataAsync } from '@/lib/store';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Floral Inspiration Journal & Portfolio | Laxman Phool Bhandar',
   description: 'Browse our real portfolio of luxury weddings, Defender car decorations, fresh rose bouquets, and reception stage decor in Patna.',

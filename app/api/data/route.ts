@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getStoreData } from '@/lib/store';
+import { getStoreDataAsync } from '@/lib/store';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const data = getStoreData();
+    const data = await getStoreDataAsync();
     return NextResponse.json(data);
   } catch (err) {
     console.error('Error fetching data:', err);

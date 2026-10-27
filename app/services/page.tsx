@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getStoreDataAsync } from '@/lib/store';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Floral Services & Pricing Packages | Laxman Phool Bhandar',
   description: 'Explore our luxury floral packages: wedding mandaps, doorstep car decoration, artisanal hand-tied bouquets, haldi jhoola setups, and custom Pinterest designs in Patna.',

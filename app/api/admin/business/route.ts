@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAuthenticatedAdmin } from '@/lib/auth';
 import { getStoreData, saveStoreData, BusinessInfo } from '@/lib/store';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   const isAuth = await isAuthenticatedAdmin();
@@ -32,6 +36,17 @@ export async function POST(request: Request) {
     };
 
     const updated = saveStoreData({ businessInfo: merged });
+
+    try {
+      revalidatePath('/', 'page');
+      revalidatePath('/services', 'page');
+      revalidatePath('/gallery', 'page');
+      revalidatePath('/book', 'page');
+      revalidatePath('/api/data');
+    } catch (e) {
+      console.warn('Revalidation warning:', e);
+    }
+
     return NextResponse.json({ success: true, businessInfo: updated.businessInfo });
   } catch (err) {
     console.error('Error saving business info:', err);

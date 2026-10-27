@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAuthenticatedAdmin } from '@/lib/auth';
 import { getStoreData, saveStoreData } from '@/lib/store';
 import {
@@ -9,6 +10,21 @@ import {
   syncAllServicesToSupabase,
 } from '@/lib/supabase-services';
 import { Service } from '@/lib/data';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+function revalidatePublicPages() {
+  try {
+    revalidatePath('/', 'page');
+    revalidatePath('/services', 'page');
+    revalidatePath('/book', 'page');
+    revalidatePath('/gallery', 'page');
+    revalidatePath('/api/data');
+  } catch (e) {
+    console.warn('Revalidation warning:', e);
+  }
+}
 
 export async function GET() {
   const isAuth = await isAuthenticatedAdmin();
@@ -46,6 +62,8 @@ export async function POST(request: Request) {
         await syncAllServicesToSupabase(body.services);
       }
 
+      revalidatePublicPages();
+
       return NextResponse.json({
         success: true,
         services: updated.services,
@@ -72,27 +90,26 @@ export async function POST(request: Request) {
     }
 
     const updated = saveStoreData({ services: currentServices });
+    let finalServices = updated.services;
 
     if (supabaseActive) {
       try {
         await upsertSupabaseService(service, index >= 0 ? index : currentServices.length - 1);
         const dbServices = await fetchSupabaseServices();
         if (dbServices && dbServices.length > 0) {
+          finalServices = dbServices;
           saveStoreData({ services: dbServices });
-          return NextResponse.json({
-            success: true,
-            services: dbServices,
-            syncedToSupabase: true,
-          });
         }
       } catch (sbErr) {
         console.warn('Supabase upsert warning:', sbErr);
       }
     }
 
+    revalidatePublicPages();
+
     return NextResponse.json({
       success: true,
-      services: updated.services,
+      services: finalServices,
       syncedToSupabase: supabaseActive,
     });
   } catch (err: any) {
@@ -133,6 +150,8 @@ export async function DELETE(request: Request) {
         console.warn('Supabase delete warning:', sbErr);
       }
     }
+
+    revalidatePublicPages();
 
     return NextResponse.json({
       success: true,

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { isAuthenticatedAdmin } from '@/lib/auth';
 import { getStoreData, saveStoreData } from '@/lib/store';
 import {
@@ -9,6 +10,19 @@ import {
   syncAllGalleryToSupabase,
 } from '@/lib/supabase-gallery';
 import { GalleryItem } from '@/lib/data';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+function revalidatePublicGallery() {
+  try {
+    revalidatePath('/', 'page');
+    revalidatePath('/gallery', 'page');
+    revalidatePath('/api/data');
+  } catch (e) {
+    console.warn('Revalidation warning:', e);
+  }
+}
 
 export async function GET() {
   const isAuth = await isAuthenticatedAdmin();
@@ -49,6 +63,8 @@ export async function POST(request: Request) {
           console.warn('Supabase bulk sync gallery error:', sbErr);
         }
       }
+
+      revalidatePublicGallery();
 
       return NextResponse.json({
         success: true,
@@ -92,6 +108,8 @@ export async function POST(request: Request) {
         console.warn('Supabase upsert gallery error:', sbErr);
       }
     }
+
+    revalidatePublicGallery();
 
     return NextResponse.json({
       success: true,
@@ -139,6 +157,8 @@ export async function DELETE(request: Request) {
         console.warn('Supabase delete gallery error:', sbErr);
       }
     }
+
+    revalidatePublicGallery();
 
     return NextResponse.json({
       success: true,
