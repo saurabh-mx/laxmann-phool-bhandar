@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import GallerySection from '@/components/GallerySection';
-import { getStoreData } from '@/lib/store';
+import { getStoreDataAsync } from '@/lib/store';
 
 export const metadata: Metadata = {
   title: 'Floral Inspiration Journal & Portfolio | Laxman Phool Bhandar',
   description: 'Browse our real portfolio of luxury weddings, Defender car decorations, fresh rose bouquets, and reception stage decor in Patna.',
 };
 
-export default function GalleryPage() {
-  const { gallery, businessInfo } = getStoreData();
+export default async function GalleryPage() {
+  const { gallery, businessInfo } = await getStoreDataAsync();
 
   return (
     <>

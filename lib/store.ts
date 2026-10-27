@@ -187,37 +187,45 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
     const { isSupabaseConfigured, fetchSupabaseServices, syncAllServicesToSupabase } = await import(
       './supabase-services'
     );
+    const { fetchSupabaseGallery, syncAllGalleryToSupabase } = await import('./supabase-gallery');
+
     if (isSupabaseConfigured()) {
-      const dbServices = await fetchSupabaseServices();
-      if (dbServices && dbServices.length > 0) {
-        return {
-          ...local,
-          services: dbServices,
-          isSupabaseConnected: true,
-        };
+      let services = local.services;
+      let gallery = local.gallery;
+
+      // 1. Fetch or auto-seed services
+      try {
+        const dbServices = await fetchSupabaseServices();
+        if (dbServices && dbServices.length > 0) {
+          services = dbServices;
+        } else if (dbServices && dbServices.length === 0 && local.services.length > 0) {
+          await syncAllServicesToSupabase(local.services);
+        }
+      } catch (err) {
+        console.warn('Supabase services fetch warning:', err);
       }
 
-      // If Supabase table exists but is empty, automatically seed and sync all services
-      if (dbServices && dbServices.length === 0 && local.services.length > 0) {
-        try {
-          await syncAllServicesToSupabase(local.services);
-        } catch (syncErr) {
-          console.warn('Auto-sync to Supabase warning:', syncErr);
+      // 2. Fetch or auto-seed gallery photos
+      try {
+        const dbGallery = await fetchSupabaseGallery();
+        if (dbGallery && dbGallery.length > 0) {
+          gallery = dbGallery;
+        } else if (dbGallery && dbGallery.length === 0 && local.gallery.length > 0) {
+          await syncAllGalleryToSupabase(local.gallery);
         }
-        return {
-          ...local,
-          services: local.services,
-          isSupabaseConnected: true,
-        };
+      } catch (err) {
+        console.warn('Supabase gallery fetch warning:', err);
       }
 
       return {
         ...local,
+        services,
+        gallery,
         isSupabaseConnected: true,
       };
     }
   } catch (err) {
-    console.warn('Failed to load services from Supabase, using local fallback:', err);
+    console.warn('Failed to load store data from Supabase, using local fallback:', err);
   }
 
   return {

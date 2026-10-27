@@ -270,7 +270,11 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, gallery: resData.gallery }));
         setEditingPhoto(null);
-        showToast(isAddingPhoto ? 'Photo published to gallery!' : 'Photo details updated!');
+        showToast(
+          supabaseConnected
+            ? (isAddingPhoto ? 'Photo published & synced to Supabase!' : 'Photo details updated & synced to Supabase!')
+            : (isAddingPhoto ? 'Photo published to gallery!' : 'Photo details updated!')
+        );
       } else {
         showToast(resData.error || 'Failed to save photo', 'error');
       }
@@ -289,7 +293,11 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
       const resData = await res.json();
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, gallery: resData.gallery }));
-        showToast('Photo removed from gallery');
+        showToast(
+          supabaseConnected
+            ? `Photo "${title || 'item'}" removed from Supabase`
+            : 'Photo removed from gallery'
+        );
       } else {
         showToast(resData.error || 'Failed to delete photo', 'error');
       }
@@ -308,7 +316,11 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
 
     if (url) {
       setEditingPhoto((prev) => (prev ? { ...prev, image: url } : null));
-      showToast('Image uploaded successfully!');
+      showToast(
+        supabaseConnected
+          ? 'Image uploaded & ready to save to database!'
+          : 'Image uploaded successfully!'
+      );
     }
   };
 
@@ -660,8 +672,24 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
           <section className="admin-tab-content">
             <div className="content-action-bar">
               <div>
-                <h2>Photo Showcase & Customer Journal</h2>
-                <p>Upload new photos from your phone/computer or link photos. Assign them to categories with custom captions.</p>
+                <div className="title-with-badge">
+                  <h2>Photo Showcase & Customer Journal</h2>
+                  {supabaseConnected ? (
+                    <span className="badge-db-supabase" title="Real-time photo database auto-sync active">
+                      <span className="pulse-dot-green">●</span> Supabase Photo DB Connected
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="badge-db-local"
+                      onClick={() => setShowSqlModal(true)}
+                      title="Click for Supabase DB setup instructions"
+                    >
+                      <span className="pulse-dot-amber">●</span> Local Storage (Setup Supabase ↗)
+                    </button>
+                  )}
+                </div>
+                <p>Upload new photos from your phone/computer or link photos. All photos auto-sync with Supabase in real time.</p>
               </div>
               <button
                 type="button"
@@ -1160,7 +1188,8 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
 
               <div className="sql-snippet-box">
                 <pre>
-{`create table if not exists public.services (
+{`-- 1. Services Table
+create table if not exists public.services (
   id text primary key,
   title text not null,
   category text not null default 'weddings',
@@ -1175,14 +1204,32 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
-
 alter table public.services enable row level security;
+create policy "Allow public read services" on public.services for select using (true);
+create policy "Allow write services" on public.services for all using (true) with check (true);
 
-create policy "Allow public read access to services"
-  on public.services for select using (true);
+-- 2. Photo Showcase / Gallery Table
+create table if not exists public.gallery (
+  id text primary key,
+  title text not null,
+  category text not null default 'weddings',
+  category_label text not null default '',
+  image text not null,
+  aspect text not null default 'square',
+  highlight text not null default '',
+  display_order int not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table public.gallery enable row level security;
+create policy "Allow public read gallery" on public.gallery for select using (true);
+create policy "Allow write gallery" on public.gallery for all using (true) with check (true);
 
-create policy "Allow all write access to services"
-  on public.services for all using (true) with check (true);`}
+-- 3. Storage Bucket for Photos
+insert into storage.buckets (id, name, public) values ('photos', 'photos', true) on conflict (id) do update set public = true;
+create policy "Public Access to Photos" on storage.objects for select using (bucket_id = 'photos');
+create policy "Allow Upload to Photos" on storage.objects for insert with check (bucket_id = 'photos');
+create policy "Allow Manage Photos" on storage.objects for all using (bucket_id = 'photos');`}
                 </pre>
               </div>
 
