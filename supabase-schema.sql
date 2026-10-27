@@ -1,6 +1,6 @@
 -- ==============================================================
--- Laxman Phool Bhandar - Complete Supabase Database Schema
--- Run this in your Supabase Project -> SQL Editor -> Run
+-- Laxman Phool Bhandar - Complete Idempotent Supabase Schema
+-- Safe to run multiple times in Supabase -> SQL Editor -> Run
 -- ==============================================================
 
 -- 1. Services Table
@@ -22,9 +22,11 @@ create table if not exists public.services (
 
 alter table public.services enable row level security;
 
+drop policy if exists "Allow public read access to services" on public.services;
 create policy "Allow public read access to services"
   on public.services for select using (true);
 
+drop policy if exists "Allow all write access to services" on public.services;
 create policy "Allow all write access to services"
   on public.services for all using (true) with check (true);
 
@@ -45,9 +47,13 @@ create table if not exists public.gallery (
 
 alter table public.gallery enable row level security;
 
+drop policy if exists "Allow public read access to gallery" on public.gallery;
+drop policy if exists "Allow public read gallery" on public.gallery;
 create policy "Allow public read access to gallery"
   on public.gallery for select using (true);
 
+drop policy if exists "Allow all write access to gallery" on public.gallery;
+drop policy if exists "Allow write gallery" on public.gallery;
 create policy "Allow all write access to gallery"
   on public.gallery for all using (true) with check (true);
 
@@ -64,14 +70,18 @@ values (
 on conflict (id) do update set public = true;
 
 -- Storage Policies for 'photos' bucket
+drop policy if exists "Public Access to Photos" on storage.objects;
 create policy "Public Access to Photos"
   on storage.objects for select
   using ( bucket_id = 'photos' );
 
+drop policy if exists "Allow Upload to Photos" on storage.objects;
 create policy "Allow Upload to Photos"
   on storage.objects for insert
   with check ( bucket_id = 'photos' );
 
+drop policy if exists "Allow Update/Delete to Photos" on storage.objects;
+drop policy if exists "Allow Manage Photos" on storage.objects;
 create policy "Allow Update/Delete to Photos"
   on storage.objects for all
   using ( bucket_id = 'photos' );

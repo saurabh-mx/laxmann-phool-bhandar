@@ -1205,8 +1205,12 @@ create table if not exists public.services (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 alter table public.services enable row level security;
-create policy "Allow public read services" on public.services for select using (true);
-create policy "Allow write services" on public.services for all using (true) with check (true);
+drop policy if exists "Allow public read access to services" on public.services;
+drop policy if exists "Allow public read services" on public.services;
+create policy "Allow public read access to services" on public.services for select using (true);
+drop policy if exists "Allow all write access to services" on public.services;
+drop policy if exists "Allow write services" on public.services for all using (true) with check (true);
+create policy "Allow all write access to services" on public.services for all using (true) with check (true);
 
 -- 2. Photo Showcase / Gallery Table
 create table if not exists public.gallery (
@@ -1222,14 +1226,22 @@ create table if not exists public.gallery (
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 alter table public.gallery enable row level security;
-create policy "Allow public read gallery" on public.gallery for select using (true);
-create policy "Allow write gallery" on public.gallery for all using (true) with check (true);
+drop policy if exists "Allow public read access to gallery" on public.gallery;
+drop policy if exists "Allow public read gallery" on public.gallery;
+create policy "Allow public read access to gallery" on public.gallery for select using (true);
+drop policy if exists "Allow all write access to gallery" on public.gallery;
+drop policy if exists "Allow write gallery" on public.gallery;
+create policy "Allow all write access to gallery" on public.gallery for all using (true) with check (true);
 
 -- 3. Storage Bucket for Photos
 insert into storage.buckets (id, name, public) values ('photos', 'photos', true) on conflict (id) do update set public = true;
+drop policy if exists "Public Access to Photos" on storage.objects;
 create policy "Public Access to Photos" on storage.objects for select using (bucket_id = 'photos');
+drop policy if exists "Allow Upload to Photos" on storage.objects;
 create policy "Allow Upload to Photos" on storage.objects for insert with check (bucket_id = 'photos');
-create policy "Allow Manage Photos" on storage.objects for all using (bucket_id = 'photos');`}
+drop policy if exists "Allow Update/Delete to Photos" on storage.objects;
+drop policy if exists "Allow Manage Photos" on storage.objects;
+create policy "Allow Update/Delete to Photos" on storage.objects for all using (bucket_id = 'photos');`}
                 </pre>
               </div>
 
