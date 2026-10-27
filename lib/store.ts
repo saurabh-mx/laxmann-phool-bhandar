@@ -184,7 +184,9 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
   const local = getStoreData();
 
   try {
-    const { isSupabaseConfigured, fetchSupabaseServices } = await import('./supabase-services');
+    const { isSupabaseConfigured, fetchSupabaseServices, syncAllServicesToSupabase } = await import(
+      './supabase-services'
+    );
     if (isSupabaseConfigured()) {
       const dbServices = await fetchSupabaseServices();
       if (dbServices && dbServices.length > 0) {
@@ -194,6 +196,21 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
           isSupabaseConnected: true,
         };
       }
+
+      // If Supabase table exists but is empty, automatically seed and sync all services
+      if (dbServices && dbServices.length === 0 && local.services.length > 0) {
+        try {
+          await syncAllServicesToSupabase(local.services);
+        } catch (syncErr) {
+          console.warn('Auto-sync to Supabase warning:', syncErr);
+        }
+        return {
+          ...local,
+          services: local.services,
+          isSupabaseConnected: true,
+        };
+      }
+
       return {
         ...local,
         isSupabaseConnected: true,

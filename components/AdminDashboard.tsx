@@ -21,7 +21,6 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
 
   // Supabase State
   const [supabaseConnected, setSupabaseConnected] = useState(Boolean(isSupabaseConnected));
-  const [isSyncing, setIsSyncing] = useState(false);
   const [showSqlModal, setShowSqlModal] = useState(false);
 
   // Service Edit / Create State
@@ -131,7 +130,11 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, services: resData.services }));
         setEditingService(null);
-        showToast(isNewService ? 'Service created successfully!' : 'Service updated successfully!');
+        showToast(
+          supabaseConnected
+            ? (isNewService ? 'Service created & auto-synced to Supabase!' : 'Service updated & auto-synced to Supabase!')
+            : (isNewService ? 'Service created successfully!' : 'Service updated successfully!')
+        );
       } else {
         showToast(resData.error || 'Failed to save service', 'error');
       }
@@ -155,36 +158,16 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
       const resData = await res.json();
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, services: resData.services }));
-        showToast(`"${title}" deleted successfully`);
+        showToast(
+          supabaseConnected
+            ? `"${title}" deleted & removed from Supabase`
+            : `"${title}" deleted successfully`
+        );
       } else {
         showToast(resData.error || 'Failed to delete service. Please check your connection.', 'error');
       }
     } catch {
       showToast('Error deleting service. Please check connection.', 'error');
-    }
-  };
-
-  const handleSyncSupabase = async () => {
-    setIsSyncing(true);
-    try {
-      const res = await fetch('/api/admin/services/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'push' }),
-      });
-      const resData = await res.json();
-      setIsSyncing(false);
-
-      if (res.ok && resData.success) {
-        setSupabaseConnected(true);
-        showToast(resData.message || 'Services synced to Supabase successfully!');
-      } else {
-        showToast(resData.error || 'Failed to sync with Supabase', 'error');
-        setShowSqlModal(true);
-      }
-    } catch {
-      setIsSyncing(false);
-      showToast('Error contacting Supabase sync endpoint', 'error');
     }
   };
 
@@ -446,8 +429,8 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
                 <div className="title-with-badge">
                   <h2>Services & Floral Packages</h2>
                   {supabaseConnected ? (
-                    <span className="badge-db-supabase" title="Connected to Supabase services table">
-                      <span className="pulse-dot-green">●</span> Supabase DB Connected
+                    <span className="badge-db-supabase" title="Real-time auto sync active: all additions, edits, and deletions instantly sync to Supabase">
+                      <span className="pulse-dot-green">●</span> Supabase Auto-Sync Active
                     </span>
                   ) : (
                     <button
@@ -460,18 +443,9 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
                     </button>
                   )}
                 </div>
-                <p>Edit pricing, descriptions, inclusions, and preview images stored on your database.</p>
+                <p>All additions, edits, and deletions automatically synchronize with your Supabase database in real time.</p>
               </div>
               <div className="header-action-buttons">
-                <button
-                  type="button"
-                  className="button button-outline btn-sync-cloud"
-                  disabled={isSyncing}
-                  onClick={handleSyncSupabase}
-                  title="Push/Sync all services with Supabase"
-                >
-                  <span>{isSyncing ? 'Syncing...' : '⚡ Sync to Supabase'}</span>
-                </button>
                 <button
                   type="button"
                   className="button button-emerald btn-add-item"
@@ -1227,8 +1201,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
               <div className="setup-step-box">
                 <span className="step-num">Step 3</span>
                 <div>
-                  <strong>Click &quot;Sync to Supabase&quot;</strong>
-                  <p>Once credentials are added, click the <strong>⚡ Sync to Supabase</strong> button to upload all current floral services into your Supabase database!</p>
+                  <strong>Automatic Real-Time Sync</strong>
+                  <p>Once credentials are added to <code>.env.local</code>, every change you make (add, edit, or delete) automatically synchronizes with Supabase with zero manual effort!</p>
                 </div>
               </div>
             </div>

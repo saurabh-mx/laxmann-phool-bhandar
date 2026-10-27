@@ -76,6 +76,15 @@ export async function POST(request: Request) {
     if (supabaseActive) {
       try {
         await upsertSupabaseService(service, index >= 0 ? index : currentServices.length - 1);
+        const dbServices = await fetchSupabaseServices();
+        if (dbServices && dbServices.length > 0) {
+          saveStoreData({ services: dbServices });
+          return NextResponse.json({
+            success: true,
+            services: dbServices,
+            syncedToSupabase: true,
+          });
+        }
       } catch (sbErr) {
         console.warn('Supabase upsert warning:', sbErr);
       }
