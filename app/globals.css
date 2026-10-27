@@ -3870,4 +3870,160 @@ img {
   box-shadow: 0 4px 14px rgba(22, 64, 47, 0.2);
 }
 
+/* Supabase DB Status & Header Action Elements */
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.title-with-badge h2 {
+  margin-bottom: 0;
+}
+
+.badge-db-supabase {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #edf8f2;
+  border: 1px solid #75d4a4;
+  color: #166534;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.pulse-dot-green {
+  color: #16a34a;
+  font-size: 14px;
+}
+
+.badge-db-local {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.badge-db-local:hover {
+  background: #fef3c7;
+}
+
+.pulse-dot-amber {
+  color: #d97706;
+  font-size: 14px;
+}
+
+.header-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-sync-cloud {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-color: #059669;
+  color: #059669;
+  background: #f0fdf4;
+}
+
+.btn-sync-cloud:hover {
+  background: #059669;
+  color: #fff;
+}
+
+/* Supabase Setup Modal */
+.sql-setup-dialog {
+  max-width: 720px;
+}
+
+.sql-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 13.5px;
+}
+
+.sql-intro-note {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.setup-step-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fbfcfb;
+  border: 1px solid #e2e8e4;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+}
+
+.step-num {
+  padding: 4px 8px;
+  background: var(--brand-emerald);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.setup-step-box strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text-heading);
+  margin-bottom: 2px;
+}
+
+.setup-step-box p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.sql-snippet-box {
+  background: #0d1f17;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.sql-snippet-box pre {
+  margin: 0;
+  color: #d1fae5;
+  font-family: monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.env-snippet {
+  margin-top: 8px;
+  background: #11281e;
+  color: #fef08a;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+
 

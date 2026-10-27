@@ -133,3 +133,29 @@ export function saveStoreData(data: Partial<AppStoreData>): AppStoreData {
   fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), 'utf-8');
   return updated;
 }
+
+export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseConnected: boolean }> {
+  const local = getStoreData();
+  
+  try {
+    const { isSupabaseConfigured, fetchSupabaseServices } = await import('./supabase-services');
+    if (isSupabaseConfigured()) {
+      const dbServices = await fetchSupabaseServices();
+      if (dbServices && dbServices.length > 0) {
+        return {
+          ...local,
+          services: dbServices,
+          isSupabaseConnected: true,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to load services from Supabase, using local fallback:', err);
+  }
+
+  return {
+    ...local,
+    isSupabaseConnected: false,
+  };
+}
+

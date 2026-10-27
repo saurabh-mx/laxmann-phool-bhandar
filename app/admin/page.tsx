@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { isAuthenticatedAdmin } from '@/lib/auth';
-import { getStoreData } from '@/lib/store';
+import { getStoreDataAsync } from '@/lib/store';
 import AdminDashboard from '@/components/AdminDashboard';
 import type { Metadata } from 'next';
 
@@ -19,7 +19,12 @@ export default async function AdminPage() {
     redirect('/admin/login');
   }
 
-  const initialData = getStoreData();
+  const initialData = await getStoreDataAsync();
 
-  return <AdminDashboard initialData={initialData} />;
+  return (
+    <AdminDashboard
+      initialData={initialData}
+      isSupabaseConnected={initialData.isSupabaseConnected}
+    />
+  );
 }

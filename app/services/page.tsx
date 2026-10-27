@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getStoreData } from '@/lib/store';
+import { getStoreDataAsync } from '@/lib/store';
 
 export const metadata: Metadata = {
   title: 'Floral Services & Pricing Packages | Laxman Phool Bhandar',
   description: 'Explore our luxury floral packages: wedding mandaps, doorstep car decoration, artisanal hand-tied bouquets, haldi jhoola setups, and custom Pinterest designs in Patna.',
 };
 
-export default function ServicesPage() {
-  const { services, businessInfo } = getStoreData();
+export default async function ServicesPage() {
+  const { services, businessInfo } = await getStoreDataAsync();
 
   return (
     <>

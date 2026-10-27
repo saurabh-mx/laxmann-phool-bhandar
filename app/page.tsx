@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { getStoreData } from '@/lib/store';
+import { getStoreDataAsync } from '@/lib/store';
 import CostCalculator from '@/components/CostCalculator';
 import GallerySection from '@/components/GallerySection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import FAQSection from '@/components/FAQSection';
 
-export default function HomePage() {
-  const store = getStoreData();
+export default async function HomePage() {
+  const store = await getStoreDataAsync();
   const services = store.services;
   const pricing = store.pricing;
   const gallery = store.gallery;

@@ -8,15 +8,21 @@ import type { Service, GalleryItem } from '@/lib/data';
 
 interface AdminDashboardProps {
   initialData: AppStoreData;
+  isSupabaseConnected?: boolean;
 }
 
 type TabType = 'services' | 'pricing' | 'gallery' | 'business';
 
-export default function AdminDashboard({ initialData }: AdminDashboardProps) {
+export default function AdminDashboard({ initialData, isSupabaseConnected }: AdminDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('services');
   const [data, setData] = useState<AppStoreData>(initialData);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Supabase State
+  const [supabaseConnected, setSupabaseConnected] = useState(Boolean(isSupabaseConnected));
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showSqlModal, setShowSqlModal] = useState(false);
 
   // Service Edit / Create State
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -141,15 +147,44 @@ export default function AdminDashboard({ initialData }: AdminDashboardProps) {
       const res = await fetch(`/api/admin/services?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
+      if (res.status === 401) {
+        showToast('Your session has expired. Please sign in again.', 'error');
+        router.push('/admin/login');
+        return;
+      }
       const resData = await res.json();
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, services: resData.services }));
         showToast(`"${title}" deleted successfully`);
       } else {
-        showToast(resData.error || 'Failed to delete service', 'error');
+        showToast(resData.error || 'Failed to delete service. Please check your connection.', 'error');
       }
     } catch {
-      showToast('Error deleting service', 'error');
+      showToast('Error deleting service. Please check connection.', 'error');
+    }
+  };
+
+  const handleSyncSupabase = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/admin/services/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'push' }),
+      });
+      const resData = await res.json();
+      setIsSyncing(false);
+
+      if (res.ok && resData.success) {
+        setSupabaseConnected(true);
+        showToast(resData.message || 'Services synced to Supabase successfully!');
+      } else {
+        showToast(resData.error || 'Failed to sync with Supabase', 'error');
+        setShowSqlModal(true);
+      }
+    } catch {
+      setIsSyncing(false);
+      showToast('Error contacting Supabase sync endpoint', 'error');
     }
   };
 
@@ -408,16 +443,43 @@ export default function AdminDashboard({ initialData }: AdminDashboardProps) {
           <section className="admin-tab-content">
             <div className="content-action-bar">
               <div>
-                <h2>Services & Floral Packages</h2>
-                <p>Edit pricing, package descriptions, inclusions, and preview images shown on the public site.</p>
+                <div className="title-with-badge">
+                  <h2>Services & Floral Packages</h2>
+                  {supabaseConnected ? (
+                    <span className="badge-db-supabase" title="Connected to Supabase services table">
+                      <span className="pulse-dot-green">●</span> Supabase DB Connected
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="badge-db-local"
+                      onClick={() => setShowSqlModal(true)}
+                      title="Click for Supabase DB setup instructions"
+                    >
+                      <span className="pulse-dot-amber">●</span> Local Storage (Setup Supabase ↗)
+                    </button>
+                  )}
+                </div>
+                <p>Edit pricing, descriptions, inclusions, and preview images stored on your database.</p>
               </div>
-              <button
-                type="button"
-                className="button button-emerald btn-add-item"
-                onClick={openNewServiceModal}
-              >
-                <span>+ Add New Service</span>
-              </button>
+              <div className="header-action-buttons">
+                <button
+                  type="button"
+                  className="button button-outline btn-sync-cloud"
+                  disabled={isSyncing}
+                  onClick={handleSyncSupabase}
+                  title="Push/Sync all services with Supabase"
+                >
+                  <span>{isSyncing ? 'Syncing...' : '⚡ Sync to Supabase'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="button button-emerald btn-add-item"
+                  onClick={openNewServiceModal}
+                >
+                  <span>+ Add New Service</span>
+                </button>
+              </div>
             </div>
 
             <div className="admin-services-grid">
@@ -1088,6 +1150,98 @@ export default function AdminDashboard({ initialData }: AdminDashboardProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: SUPABASE SETUP INSTRUCTIONS */}
+      {/* ============================================================== */}
+      {showSqlModal && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal-dialog sql-setup-dialog">
+            <div className="modal-header">
+              <h3>⚡ Setup Supabase Database for Services</h3>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => setShowSqlModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="sql-modal-body">
+              <p className="sql-intro-note">
+                Follow these 3 easy steps to connect your live Supabase cloud database to the Laxman Phool Bhandar studio portal:
+              </p>
+
+              <div className="setup-step-box">
+                <span className="step-num">Step 1</span>
+                <div>
+                  <strong>Run the Database Table Script</strong>
+                  <p>Open your Supabase Project &rarr; <strong>SQL Editor</strong>, paste this script and click <strong>Run</strong>:</p>
+                </div>
+              </div>
+
+              <div className="sql-snippet-box">
+                <pre>
+{`create table if not exists public.services (
+  id text primary key,
+  title text not null,
+  category text not null default 'weddings',
+  short text not null default '',
+  description text not null default '',
+  price text not null default '',
+  starting_numeric_price numeric not null default 0,
+  image text not null default '',
+  tag text not null default '',
+  features jsonb not null default '[]'::jsonb,
+  display_order int not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.services enable row level security;
+
+create policy "Allow public read access to services"
+  on public.services for select using (true);
+
+create policy "Allow all write access to services"
+  on public.services for all using (true) with check (true);`}
+                </pre>
+              </div>
+
+              <div className="setup-step-box">
+                <span className="step-num">Step 2</span>
+                <div>
+                  <strong>Add Credentials to .env.local</strong>
+                  <p>In your project root, open <code>.env.local</code> and set your project details:</p>
+                  <pre className="env-snippet">
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+                  </pre>
+                </div>
+              </div>
+
+              <div className="setup-step-box">
+                <span className="step-num">Step 3</span>
+                <div>
+                  <strong>Click &quot;Sync to Supabase&quot;</strong>
+                  <p>Once credentials are added, click the <strong>⚡ Sync to Supabase</strong> button to upload all current floral services into your Supabase database!</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-actions-bar">
+              <button
+                type="button"
+                className="button button-emerald"
+                onClick={() => setShowSqlModal(false)}
+              >
+                <span>Got It, Close</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

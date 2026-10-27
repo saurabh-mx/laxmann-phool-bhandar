@@ -84,6 +84,23 @@
         "Decorated floral swing / photobooth",
         "Organic flower petal shower basket"
       ]
+    },
+    {
+      "id": "custom",
+      "title": "Bespoke Pinterest / Instagram Recreation",
+      "category": "occasions",
+      "short": "Bring your saved dream design to life within your budget",
+      "description": "Saw a dream decor concept on Instagram or Pinterest? Share the screenshot with us. Our senior floral artisans source exact flowers and craft a tailored version to fit your venue.",
+      "price": "Based on your budget",
+      "startingNumericPrice": 3000,
+      "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=85",
+      "tag": "Tailored for You",
+      "features": [
+        "Free 1-on-1 WhatsApp consultation",
+        "Exact flower & color palette matching",
+        "Scale & venue layout feasibility check",
+        "Transparent itemized budget breakdown"
+      ]
     }
   ],
   "gallery": [
@@ -273,5 +290,5 @@
     "rating": "4.9★",
     "reviewsCount": "380+ reviews"
   },
-  "lastUpdated": "2026-10-27T17:47:43.454Z"
+  "lastUpdated": "2026-10-27T18:04:20.340Z"
 }
