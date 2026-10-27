@@ -11,7 +11,7 @@ interface AdminDashboardProps {
   isSupabaseConnected?: boolean;
 }
 
-type TabType = 'services' | 'pricing' | 'gallery' | 'business';
+type TabType = 'services' | 'gallery' | 'business';
 
 export default function AdminDashboard({ initialData, isSupabaseConnected }: AdminDashboardProps) {
   const router = useRouter();
@@ -35,9 +35,7 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
   const [galleryCategoryFilter, setGalleryCategoryFilter] = useState('all');
   const [photoUploading, setPhotoUploading] = useState(false);
 
-  // Pricing State
-  const [pricingForm, setPricingForm] = useState<PricingConfig>(initialData.pricing);
-  const [isSavingPricing, setIsSavingPricing] = useState(false);
+
 
   // Business Info State
   const [businessForm, setBusinessForm] = useState<BusinessInfo>(initialData.businessInfo);
@@ -185,62 +183,7 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
     }
   };
 
-  // ===================== PRICING ACTIONS =====================
-  const handleSavePricing = async () => {
-    setIsSavingPricing(true);
-    try {
-      const res = await fetch('/api/admin/pricing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pricing: pricingForm }),
-      });
-      const resData = await res.json();
-      setIsSavingPricing(false);
 
-      if (res.ok && resData.success) {
-        setData((prev) => ({ ...prev, pricing: resData.pricing }));
-        showToast(
-          supabaseConnected
-            ? 'Pricing estimator configuration updated & synced to Supabase!'
-            : 'Pricing estimator configuration updated!'
-        );
-      } else {
-        showToast(resData.error || 'Failed to update pricing', 'error');
-      }
-    } catch {
-      setIsSavingPricing(false);
-      showToast('Error saving pricing', 'error');
-    }
-  };
-
-  const updateEventTypePrice = (index: number, field: 'baseMin' | 'baseMax' | 'name' | 'icon', value: any) => {
-    const updated = [...pricingForm.eventTypes];
-    updated[index] = { ...updated[index], [field]: value };
-    setPricingForm({ ...pricingForm, eventTypes: updated });
-  };
-
-  const updateAddonPrice = (index: number, field: 'name' | 'price', value: any) => {
-    const updated = [...pricingForm.addons];
-    updated[index] = { ...updated[index], [field]: value };
-    setPricingForm({ ...pricingForm, addons: updated });
-  };
-
-  const handleAddAddon = () => {
-    const newAddon = {
-      id: `addon-${Date.now()}`,
-      name: 'New Custom Add-on',
-      price: 1500,
-    };
-    setPricingForm({
-      ...pricingForm,
-      addons: [...pricingForm.addons, newAddon],
-    });
-  };
-
-  const handleRemoveAddon = (index: number) => {
-    const updated = pricingForm.addons.filter((_, i) => i !== index);
-    setPricingForm({ ...pricingForm, addons: updated });
-  };
 
   // ===================== GALLERY ACTIONS =====================
   const openNewPhotoModal = () => {
@@ -406,14 +349,7 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
             <span className="tab-count">{data.services.length}</span>
           </button>
 
-          <button
-            type="button"
-            className={`admin-tab-btn ${activeTab === 'pricing' ? 'is-active' : ''}`}
-            onClick={() => setActiveTab('pricing')}
-          >
-            <span className="tab-icon">💰</span>
-            <span>Estimator & Pricing</span>
-          </button>
+
 
           <button
             type="button"
@@ -524,157 +460,7 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
           </section>
         )}
 
-        {/* ============================================================== */}
-        {/* TAB 2: PRICING ESTIMATOR */}
-        {/* ============================================================== */}
-        {activeTab === 'pricing' && (
-          <section className="admin-tab-content">
-            <div className="content-action-bar">
-              <div>
-                <div className="title-with-badge">
-                  <h2>Package Estimator & Calculator Pricing</h2>
-                  {supabaseConnected && (
-                    <span className="badge-db-supabase" title="Real-time estimator database auto-sync active">
-                      <span className="pulse-dot-green">●</span> Supabase Auto-Sync Active
-                    </span>
-                  )}
-                </div>
-                <p>Configure base prices for celebration types, scale multipliers, and optional add-ons used in the instant quote calculator on your public store.</p>
-              </div>
-              <button
-                type="button"
-                className="button button-emerald"
-                disabled={isSavingPricing}
-                onClick={handleSavePricing}
-              >
-                {isSavingPricing ? 'Saving Changes...' : '💾 Save All Pricing Changes'}
-              </button>
-            </div>
 
-            <div className="pricing-config-grid">
-              {/* Event Types */}
-              <div className="pricing-box">
-                <div className="box-header">
-                  <h3>1. Event & Celebration Base Rates</h3>
-                  <p>Minimum and maximum base cost before venue scaling and add-ons.</p>
-                </div>
-
-                <div className="pricing-rows-table">
-                  {pricingForm.eventTypes.map((item, index) => (
-                    <div key={item.id} className="pricing-editor-row">
-                      <div className="row-cell-icon">
-                        <input
-                          type="text"
-                          value={item.icon}
-                          onChange={(e) => updateEventTypePrice(index, 'icon', e.target.value)}
-                          className="icon-input"
-                          title="Emoji Icon"
-                        />
-                      </div>
-                      <div className="row-cell-name">
-                        <label>Occasion Name</label>
-                        <input
-                          type="text"
-                          value={item.name}
-                          onChange={(e) => updateEventTypePrice(index, 'name', e.target.value)}
-                        />
-                      </div>
-                      <div className="row-cell-price">
-                        <label>Base Min (₹)</label>
-                        <input
-                          type="number"
-                          value={item.baseMin}
-                          onChange={(e) => updateEventTypePrice(index, 'baseMin', Number(e.target.value))}
-                        />
-                      </div>
-                      <div className="row-cell-price">
-                        <label>Base Max (₹)</label>
-                        <input
-                          type="number"
-                          value={item.baseMax}
-                          onChange={(e) => updateEventTypePrice(index, 'baseMax', Number(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Add-ons */}
-              <div className="pricing-box">
-                <div className="box-header-flex">
-                  <div>
-                    <h3>2. Optional Add-on Upgrades</h3>
-                    <p>Flat additions that customers can toggle in the estimator.</p>
-                  </div>
-                  <button type="button" onClick={handleAddAddon} className="btn-small-add">
-                    + Add New Add-on
-                  </button>
-                </div>
-
-                <div className="pricing-rows-table">
-                  {pricingForm.addons.map((addon, index) => (
-                    <div key={addon.id || index} className="pricing-editor-row addon-row">
-                      <div className="row-cell-name">
-                        <label>Add-on Name</label>
-                        <input
-                          type="text"
-                          value={addon.name}
-                          onChange={(e) => updateAddonPrice(index, 'name', e.target.value)}
-                        />
-                      </div>
-                      <div className="row-cell-price">
-                        <label>Price (₹)</label>
-                        <input
-                          type="number"
-                          value={addon.price}
-                          onChange={(e) => updateAddonPrice(index, 'price', Number(e.target.value))}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveAddon(index)}
-                        className="btn-remove-row"
-                        title="Remove add-on"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Scales */}
-              <div className="pricing-box full-width">
-                <div className="box-header">
-                  <h3>3. Venue Scale Multipliers</h3>
-                  <p>Multiplier factor applied to the base rate based on venue size / guest count.</p>
-                </div>
-                <div className="scales-preview-row">
-                  {pricingForm.scales.map((scale, i) => (
-                    <div key={scale.id} className="scale-preview-pill">
-                      <strong>{scale.name}</strong>
-                      <div className="scale-multiplier-input">
-                        <span>Multiplier:</span>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={scale.multiplier}
-                          onChange={(e) => {
-                            const updated = [...pricingForm.scales];
-                            updated[i] = { ...updated[i], multiplier: parseFloat(e.target.value) || 1.0 };
-                            setPricingForm({ ...pricingForm, scales: updated });
-                          }}
-                        />
-                        <span>x</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ============================================================== */}
         {/* TAB 3: PHOTO GALLERY */}

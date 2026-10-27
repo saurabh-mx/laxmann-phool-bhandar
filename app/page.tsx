@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getStoreDataAsync } from '@/lib/store';
-import CostCalculator from '@/components/CostCalculator';
 import GallerySection from '@/components/GallerySection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import FAQSection from '@/components/FAQSection';
@@ -11,7 +10,6 @@ export const revalidate = 0;
 export default async function HomePage() {
   const store = await getStoreDataAsync();
   const services = store.services;
-  const pricing = store.pricing;
   const gallery = store.gallery;
   const businessInfo = store.businessInfo;
 
@@ -121,12 +119,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Interactive Cost Estimator Banner */}
-      <section className="section-padded bg-canvas">
-        <div className="page-shell">
-          <CostCalculator initialPricing={pricing} />
-        </div>
-      </section>
+
 
       {/* Signature Services Section */}
       <section className="section-padded bg-surface">
