@@ -1,0 +1,277 @@
+{
+  "services": [
+    {
+      "id": "car",
+      "title": "Luxury Car Decoration",
+      "category": "cars",
+      "short": "Regal fresh-flower styling for wedding cars & special arrivals",
+      "description": "Transform luxury sedans, vintage cars, and wedding vehicles with fresh exotic roses, baby’s breath, orchids, and satin ribbons designed to stay fresh and secure on the road.",
+      "price": "From ₹1,499",
+      "startingNumericPrice": 1499,
+      "image": "/images/services/car-decoration.jpg",
+      "tag": "Customer Favourite",
+      "features": [
+        "Doorstep car decor service",
+        "High-speed wind-resistant mounting",
+        "Exotic orchid, rose & lily combinations",
+        "Custom bonnet & handle ribbon motifs"
+      ]
+    },
+    {
+      "id": "bouquets",
+      "title": "Artisanal Bouquets & Gift Baskets",
+      "category": "bouquets",
+      "short": "Hand-tied Korean wrap bouquets and luxury flower boxes",
+      "description": "Handcrafted Dutch rose bouquets, exotic carnations, liliums, and imported foliage wrapped in minimalist waterproof matte papers, perfect for birthdays, anniversaries, and romantic surprises.",
+      "price": "From ₹499",
+      "startingNumericPrice": 499,
+      "image": "/images/services/red-rose-bouquet.jpg",
+      "tag": "Same Day Delivery",
+      "features": [
+        "Farm-fresh morning-picked roses",
+        "Korean waterproof paper styling",
+        "Complimentary handwritten message card",
+        "Special midnight delivery available"
+      ]
+    },
+    {
+      "id": "stage",
+      "title": "Stage & Reception Décor",
+      "category": "venues",
+      "short": "Statement photobooths, pastel floral walls & lighting",
+      "description": "Elevate your reception and banquet hall with 3D floral backdrops, geometric arches, cascading wisteria suspensions, and warm fairy lighting tailored to your theme.",
+      "price": "Packages from ₹12,000",
+      "startingNumericPrice": 12000,
+      "image": "/images/services/wedding-stage.jpg",
+      "tag": "Photo Ready",
+      "features": [
+        "3D floral wall backdrops",
+        "LED neon signs & ambient spotlighting",
+        "Coordinated banquet table centerpieces",
+        "Quick same-day teardown service"
+      ]
+    },
+    {
+      "id": "bedroom",
+      "title": "Bridal Suite & Room Décor",
+      "category": "occasions",
+      "short": "Romantic canopy, cascading jasmine & rose petal bed styling",
+      "description": "Intimate first-night and bridal suite flower decorations with fresh rose canopies, cascading jasmine, heart-shaped petal bedding, and warm ambient fairy lighting.",
+      "price": "From ₹3,499",
+      "startingNumericPrice": 3499,
+      "image": "/images/services/bridal-room-canopy.jpg",
+      "tag": "Romantic Special",
+      "features": [
+        "Handcrafted fresh rose canopy arch",
+        "Fragrant jasmine & tuberose strings",
+        "Bed petal lettering & heart motif",
+        "Warm fairy light installation"
+      ]
+    },
+    {
+      "id": "engagement",
+      "title": "Haldi, Mehendi & Ring Ceremony",
+      "category": "occasions",
+      "short": "Joyous marigold, genda phool & yellow-theme floral magic",
+      "description": "Vibrant marigold hangings, floral jewelry for brides, yellow rose backdrops, swing (jhoola) decorations, and lively floral photo-booths for Indian pre-wedding festivities.",
+      "price": "From ₹5,500",
+      "startingNumericPrice": 5500,
+      "image": "/images/services/haldi-ceremony.jpg",
+      "tag": "Traditional & Modern",
+      "features": [
+        "Fresh floral jewelry set for bride",
+        "Traditional Marigold (Genda) canopy",
+        "Decorated floral swing / photobooth",
+        "Organic flower petal shower basket"
+      ]
+    }
+  ],
+  "gallery": [
+    {
+      "id": "g1",
+      "title": "Grand Palace Stage & 3D Floral Wall",
+      "category": "venues",
+      "categoryLabel": "Reception Stage",
+      "image": "/images/services/wedding-stage.jpg",
+      "aspect": "wide",
+      "highlight": "Full-bloom red & blush rose floral wall with crystal chandeliers"
+    },
+    {
+      "id": "g2",
+      "title": "Land Rover Defender Wedding Car Décor",
+      "category": "cars",
+      "categoryLabel": "Luxury Car Decoration",
+      "image": "/images/services/car-decoration.jpg",
+      "aspect": "tall",
+      "highlight": "Fresh yellow and red roses with pink organza ribbon styling"
+    },
+    {
+      "id": "g3",
+      "title": "Artisanal Black Wrapped Red Rose Bouquet",
+      "category": "bouquets",
+      "categoryLabel": "Luxury Bouquets",
+      "image": "/images/services/red-rose-bouquet.jpg",
+      "aspect": "tall",
+      "highlight": "Korean matte paper with satin burgundy ribbon"
+    },
+    {
+      "id": "g4",
+      "title": "Romantic Bridal Canopy Bed Décor",
+      "category": "weddings",
+      "categoryLabel": "First Night & Suite Décor",
+      "image": "/images/services/bridal-room-canopy.jpg",
+      "aspect": "tall",
+      "highlight": "Handcrafted fresh rose canopy with jasmine strings & fairy lights"
+    },
+    {
+      "id": "g5",
+      "title": "Spring Garden Pastel Palette",
+      "category": "venues",
+      "categoryLabel": "Floral Styling",
+      "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1000&q=85",
+      "aspect": "square",
+      "highlight": "Peonies, ranunculus & eucalyptus"
+    },
+    {
+      "id": "g6",
+      "title": "Yellow Marigold & Jasmine Haldi Décor",
+      "category": "weddings",
+      "categoryLabel": "Haldi & Mehendi",
+      "image": "/images/services/haldi-ceremony.jpg",
+      "aspect": "wide",
+      "highlight": "Traditional floral jhoola with yellow genda phool and Rajasthani umbrellas"
+    },
+    {
+      "id": "g7",
+      "title": "Velvet Red Rose Anniversary Basket",
+      "category": "bouquets",
+      "categoryLabel": "Luxury Bouquets",
+      "image": "https://images.unsplash.com/photo-1494972308805-463bc619d34e?auto=format&fit=crop&w=1000&q=85",
+      "aspect": "square",
+      "highlight": "Premium 50-stem long-stemmed roses"
+    },
+    {
+      "id": "g8",
+      "title": "Minimalist Monochromatic Bridal Bouquet",
+      "category": "bouquets",
+      "categoryLabel": "Bridal Florals",
+      "image": "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=1000&q=85",
+      "aspect": "tall",
+      "highlight": "Baby’s breath & white calla lilies"
+    },
+    {
+      "id": "g9",
+      "title": "Intimate Ceremony Floral Arches",
+      "category": "weddings",
+      "categoryLabel": "Weddings",
+      "image": "https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=1000&q=85",
+      "aspect": "wide",
+      "highlight": "Asymmetric romantic arch for vows"
+    }
+  ],
+  "pricing": {
+    "eventTypes": [
+      {
+        "id": "wedding",
+        "name": "Grand Wedding & Mandap",
+        "baseMin": 18000,
+        "baseMax": 35000,
+        "icon": "🏛️"
+      },
+      {
+        "id": "car",
+        "name": "Luxury Car Decoration",
+        "baseMin": 1500,
+        "baseMax": 3500,
+        "icon": "🚗"
+      },
+      {
+        "id": "stage",
+        "name": "Reception Stage & Backdrop",
+        "baseMin": 12000,
+        "baseMax": 25000,
+        "icon": "✨"
+      },
+      {
+        "id": "haldi",
+        "name": "Haldi & Mehendi Jhoola",
+        "baseMin": 5500,
+        "baseMax": 12000,
+        "icon": "🌼"
+      },
+      {
+        "id": "bouquet",
+        "name": "Bespoke Rose Bouquet / Basket",
+        "baseMin": 500,
+        "baseMax": 2000,
+        "icon": "💐"
+      },
+      {
+        "id": "custom",
+        "name": "Pinterest / Custom Idea",
+        "baseMin": 5000,
+        "baseMax": 15000,
+        "icon": "🎨"
+      }
+    ],
+    "scales": [
+      {
+        "id": "intimate",
+        "name": "Intimate / Home Gathering",
+        "multiplier": 1
+      },
+      {
+        "id": "grand",
+        "name": "Banquet / Hall (100–300 Guests)",
+        "multiplier": 1.4
+      },
+      {
+        "id": "royal",
+        "name": "Grand Royal Resort (500+ Guests)",
+        "multiplier": 2.1
+      }
+    ],
+    "addons": [
+      {
+        "id": "varmala",
+        "name": "Rose & Orchid Varmalas (Pair)",
+        "price": 2500
+      },
+      {
+        "id": "arch",
+        "name": "Grand Floral Entrance Arch",
+        "price": 4500
+      },
+      {
+        "id": "jewelry",
+        "name": "Bridal Floral Jewelry Set",
+        "price": 1500
+      },
+      {
+        "id": "car_decor",
+        "name": "Doorstep Wedding Car Decor",
+        "price": 1800
+      },
+      {
+        "id": "petals",
+        "name": "Organic Petal Shower Baskets",
+        "price": 800
+      }
+    ]
+  },
+  "businessInfo": {
+    "name": "Laxman Phool Bhandar",
+    "tagline": "Artisanal Floral Couture & Celebration Decor",
+    "phone": "+91 99053 16880",
+    "rawPhone": "919905316880",
+    "email": "hello@laxmanphoolbhandar.com",
+    "address": "Main Market Road, Near City Plaza, Floral Hub",
+    "city": "Patna, Bihar",
+    "hours": "Open 7 Days · 6:30 AM – 10:30 PM",
+    "experienceYears": 50,
+    "eventsCount": "2,500+",
+    "rating": "4.9★",
+    "reviewsCount": "380+ reviews"
+  },
+  "lastUpdated": "2026-10-27T17:47:43.454Z"
+}

@@ -34,16 +34,30 @@ const ADDONS = [
   { id: 'petals', name: 'Organic Petal Shower Baskets', price: 800 },
 ];
 
-export default function CostCalculator() {
-  const [selectedType, setSelectedType] = useState<string>('wedding');
-  const [selectedScale, setSelectedScale] = useState<string>('grand');
-  const [selectedAddons, setSelectedAddons] = useState<string[]>(['varmala', 'arch']);
+interface CostCalculatorProps {
+  initialPricing?: {
+    eventTypes?: EventTypeOption[];
+    scales?: { id: string; name: string; multiplier: number }[];
+    addons?: { id: string; name: string; price: number }[];
+  };
+}
 
-  const currentType = EVENT_TYPES.find((t) => t.id === selectedType) || EVENT_TYPES[0];
-  const currentScale = SCALES.find((s) => s.id === selectedScale) || SCALES[0];
+export default function CostCalculator({ initialPricing }: CostCalculatorProps) {
+  const eventTypes = initialPricing?.eventTypes?.length ? initialPricing.eventTypes : EVENT_TYPES;
+  const scales = initialPricing?.scales?.length ? initialPricing.scales : SCALES;
+  const addons = initialPricing?.addons?.length ? initialPricing.addons : ADDONS;
+
+  const [selectedType, setSelectedType] = useState<string>(eventTypes[0]?.id || 'wedding');
+  const [selectedScale, setSelectedScale] = useState<string>(scales[1]?.id || 'grand');
+  const [selectedAddons, setSelectedAddons] = useState<string[]>(
+    addons.slice(0, 2).map((a) => a.id)
+  );
+
+  const currentType = eventTypes.find((t) => t.id === selectedType) || eventTypes[0] || EVENT_TYPES[0];
+  const currentScale = scales.find((s) => s.id === selectedScale) || scales[0] || SCALES[0];
 
   const addonsTotal = selectedAddons.reduce((sum, id) => {
-    const item = ADDONS.find((a) => a.id === id);
+    const item = addons.find((a) => a.id === id);
     return sum + (item ? item.price : 0);
   }, 0);
 
@@ -58,7 +72,7 @@ export default function CostCalculator() {
 
   const handleWhatsAppSend = () => {
     const addonNames = selectedAddons
-      .map((id) => ADDONS.find((a) => a.id === id)?.name)
+      .map((id) => addons.find((a) => a.id === id)?.name)
       .filter(Boolean)
       .join(', ');
 
@@ -90,7 +104,7 @@ export default function CostCalculator() {
         <div className="calc-group">
           <label className="calc-label">1. Select Celebration Type</label>
           <div className="calc-grid-types">
-            {EVENT_TYPES.map((t) => (
+            {eventTypes.map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -109,7 +123,7 @@ export default function CostCalculator() {
         <div className="calc-group">
           <label className="calc-label">2. Venue & Guest Scale</label>
           <div className="calc-chips">
-            {SCALES.map((s) => (
+            {scales.map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -126,7 +140,7 @@ export default function CostCalculator() {
         <div className="calc-group">
           <label className="calc-label">3. Optional Bespoke Add-ons</label>
           <div className="calc-addons-grid">
-            {ADDONS.map((a) => {
+            {addons.map((a) => {
               const checked = selectedAddons.includes(a.id);
               return (
                 <button

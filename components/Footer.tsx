@@ -1,7 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { businessInfo, services } from '@/lib/data';
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="site-footer">
       <div className="footer-top-accent" />
@@ -17,7 +25,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="footer-tagline">
-              Artisanal blooms, bespoke floral couture, and royal celebration styling. Bringing your once-in-a-lifetime moments to life with morning-fresh flowers since 2014.
+              Artisanal blooms, bespoke floral couture, and royal celebration styling. Bringing your once-in-a-lifetime moments to life with morning-fresh flowers since 1975.
             </p>
             <div className="footer-trust-pill">
               <span className="star-icon">★</span>
@@ -104,6 +112,10 @@ export default function Footer() {
             <span>🌸 100% Fresh Farm Blooms</span>
             <span>•</span>
             <span>Handcrafted Daily with Care</span>
+            <span>•</span>
+            <Link href="/admin" className="admin-portal-link">
+              Studio Admin ↗
+            </Link>
           </div>
         </div>
       </div>

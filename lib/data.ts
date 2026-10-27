@@ -266,7 +266,7 @@ export const businessInfo = {
   address: 'Main Market Road, Near City Plaza, Floral Hub',
   city: 'Patna, Bihar',
   hours: 'Open 7 Days · 6:30 AM – 10:30 PM',
-  experienceYears: 12,
+  experienceYears: 50,
   eventsCount: '2,500+',
   rating: '4.9★',
   reviewsCount: '380+ reviews',

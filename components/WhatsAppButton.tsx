@@ -1,6 +1,13 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+
 export default function WhatsAppButton() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const rawNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919905316880').replace(/\D/g, '');
   const number = rawNumber.length === 10 ? `91${rawNumber}` : rawNumber;
   const message = encodeURIComponent('Hello Laxman Phool Bhandar! I would like to inquire about flowers and decoration services.');

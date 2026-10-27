@@ -6,11 +6,14 @@ import { gallery, GalleryItem, businessInfo } from '@/lib/data';
 interface GallerySectionProps {
   limit?: number;
   showFilters?: boolean;
+  initialItems?: GalleryItem[];
 }
 
-export default function GallerySection({ limit, showFilters = true }: GallerySectionProps) {
+export default function GallerySection({ limit, showFilters = true, initialItems }: GallerySectionProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
+
+  const items = initialItems && initialItems.length > 0 ? initialItems : gallery;
 
   const categories = [
     { id: 'all', label: 'All Creations' },
@@ -20,7 +23,7 @@ export default function GallerySection({ limit, showFilters = true }: GallerySec
     { id: 'venues', label: 'Stage & Reception' },
   ];
 
-  const filteredItems = gallery.filter((item) => {
+  const filteredItems = items.filter((item) => {
     if (activeCategory === 'all') return true;
     return item.category === activeCategory;
   });

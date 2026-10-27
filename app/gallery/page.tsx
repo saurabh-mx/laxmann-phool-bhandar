@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import GallerySection from '@/components/GallerySection';
-import { businessInfo } from '@/lib/data';
+import { getStoreData } from '@/lib/store';
 
 export const metadata: Metadata = {
   title: 'Floral Inspiration Journal & Portfolio | Laxman Phool Bhandar',
@@ -8,6 +8,8 @@ export const metadata: Metadata = {
 };
 
 export default function GalleryPage() {
+  const { gallery, businessInfo } = getStoreData();
+
   return (
     <>
       <section className="page-hero-editorial">
@@ -27,7 +29,7 @@ export default function GalleryPage() {
 
       <section className="section-padded bg-surface">
         <div className="page-shell">
-          <GallerySection />
+          <GallerySection initialItems={gallery} />
 
           <div className="gallery-bottom-consultation">
             <div className="consultation-box">

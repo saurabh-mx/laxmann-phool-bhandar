@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { services, businessInfo } from '@/lib/data';
+import { getStoreData } from '@/lib/store';
 
 export const metadata: Metadata = {
   title: 'Floral Services & Pricing Packages | Laxman Phool Bhandar',
@@ -8,6 +8,8 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
+  const { services, businessInfo } = getStoreData();
+
   return (
     <>
       <section className="page-hero-editorial">

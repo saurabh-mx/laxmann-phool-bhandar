@@ -1,6 +1,14 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { businessInfo } from '@/lib/data';
 
 export default function AnnouncementBar() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <div className="announcement-bar">
       <div className="announcement-content">

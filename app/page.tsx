@@ -1,11 +1,17 @@
 import Link from 'next/link';
-import { services, businessInfo } from '@/lib/data';
+import { getStoreData } from '@/lib/store';
 import CostCalculator from '@/components/CostCalculator';
 import GallerySection from '@/components/GallerySection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import FAQSection from '@/components/FAQSection';
 
 export default function HomePage() {
+  const store = getStoreData();
+  const services = store.services;
+  const pricing = store.pricing;
+  const gallery = store.gallery;
+  const businessInfo = store.businessInfo;
+
   return (
     <>
       {/* Editorial Luxury Hero */}
@@ -15,9 +21,14 @@ export default function HomePage() {
           <div className="hero-split-grid">
             {/* Left Content */}
             <div className="hero-editorial-copy">
-              <div className="hero-trust-tag">
-                <span className="gold-star">★</span>
-                <span>Rated 4.9/5 by 380+ Families in Patna & Beyond</span>
+              <div className="hero-top-strip">
+                <div className="hero-trust-tag">
+                  <span className="gold-star">★</span>
+                  <span>Rated 4.9/5 by 380+ Families in Patna & Beyond</span>
+                </div>
+                <Link href="/admin/login" className="hero-studio-login-pill" title="Studio Admin Login">
+                  <span>🔒 Studio Login</span>
+                </Link>
               </div>
 
               <h1 className="hero-main-title">
@@ -63,7 +74,7 @@ export default function HomePage() {
               {/* Stats Strip */}
               <div className="hero-metrics-strip">
                 <div className="metric-box">
-                  <strong>12+</strong>
+                  <strong>50+</strong>
                   <span>Years of Mastery</span>
                 </div>
                 <div className="metric-divider" />
@@ -110,7 +121,7 @@ export default function HomePage() {
       {/* Interactive Cost Estimator Banner */}
       <section className="section-padded bg-canvas">
         <div className="page-shell">
-          <CostCalculator />
+          <CostCalculator initialPricing={pricing} />
         </div>
       </section>
 
@@ -230,7 +241,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <GallerySection limit={6} showFilters={false} />
+          <GallerySection limit={6} showFilters={false} initialItems={gallery} />
 
           <div className="gallery-bottom-cta">
             <Link href="/gallery" className="button button-outline button-large">

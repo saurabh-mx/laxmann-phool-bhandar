@@ -25,6 +25,10 @@ export default function Navbar() {
     { href: '/book', label: 'Book an Event' },
   ];
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="nav-container">
@@ -38,7 +42,7 @@ export default function Navbar() {
           <span className="brand-symbol" aria-hidden="true">✿</span>
           <div className="brand-titles">
             <span className="brand-main">Laxman</span>
-            <span className="brand-sub">PHOOL BHANDAR · ESTD. 2014</span>
+            <span className="brand-sub">PHOOL BHANDAR · ESTD. 1975</span>
           </div>
         </Link>
 
@@ -72,6 +76,10 @@ export default function Navbar() {
           <Link href="/book" className="cta-button-nav">
             <span>Book Consultation</span>
             <span className="cta-arrow" aria-hidden="true">↗</span>
+          </Link>
+          <Link href="/admin/login" className="nav-login-btn" title="Admin Studio Login">
+            <span className="nav-login-icon">🔒</span>
+            <span>Login</span>
           </Link>
         </div>
 
@@ -126,6 +134,13 @@ export default function Navbar() {
               className="mobile-book-cta"
             >
               Plan Your Celebration ↗
+            </Link>
+            <Link
+              href="/admin/login"
+              onClick={() => setOpen(false)}
+              className="mobile-login-btn"
+            >
+              <span>🔒 Admin Studio Login</span>
             </Link>
           </div>
         </div>
