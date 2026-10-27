@@ -110,9 +110,16 @@ export async function DELETE(request: Request) {
     const filtered = data.services.filter((s) => s.id !== id);
     const updated = saveStoreData({ services: filtered });
 
+    let finalServices = updated.services;
+
     if (isSupabaseConfigured()) {
       try {
         await deleteSupabaseService(id);
+        const dbServices = await fetchSupabaseServices();
+        if (dbServices !== null) {
+          finalServices = dbServices;
+          saveStoreData({ services: dbServices });
+        }
       } catch (sbErr) {
         console.warn('Supabase delete warning:', sbErr);
       }
@@ -120,11 +127,11 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({
       success: true,
-      services: updated.services,
+      services: finalServices,
       syncedToSupabase: isSupabaseConfigured(),
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error deleting service:', err);
-    return NextResponse.json({ error: 'Failed to delete service' }, { status: 500 });
+    return NextResponse.json({ error: err?.message || 'Failed to delete service' }, { status: 500 });
   }
 }

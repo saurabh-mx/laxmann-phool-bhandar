@@ -76,45 +76,77 @@ const defaultPricing: PricingConfig = {
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'store.json');
 
+// In-memory cache to guarantee operations succeed even on read-only serverless filesystems (e.g. Vercel)
+let memoryStore: AppStoreData | null = null;
+
 export function getStoreData(): AppStoreData {
-  try {
-    if (!fs.existsSync(DATA_FILE_PATH)) {
-      const initialData: AppStoreData = {
-        services: defaultServices,
-        gallery: defaultGallery,
-        pricing: defaultPricing,
-        businessInfo: defaultBusinessInfo,
-        lastUpdated: new Date().toISOString(),
-      };
-      const dir = path.dirname(DATA_FILE_PATH);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(initialData, null, 2), 'utf-8');
-      return initialData;
-    }
-
-    const raw = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
-    const parsed = JSON.parse(raw) as AppStoreData;
-
-    // Ensure backwards compatibility with any missing fields
-    return {
-      services: parsed.services || defaultServices,
-      gallery: parsed.gallery || defaultGallery,
-      pricing: parsed.pricing || defaultPricing,
-      businessInfo: parsed.businessInfo || defaultBusinessInfo,
-      lastUpdated: parsed.lastUpdated || new Date().toISOString(),
-    };
-  } catch (err) {
-    console.error('Error reading store data:', err);
-    return {
-      services: defaultServices,
-      gallery: defaultGallery,
-      pricing: defaultPricing,
-      businessInfo: defaultBusinessInfo,
-      lastUpdated: new Date().toISOString(),
-    };
+  if (memoryStore) {
+    return memoryStore;
   }
+
+  try {
+    if (fs.existsSync(DATA_FILE_PATH)) {
+      const raw = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw) as AppStoreData;
+
+      memoryStore = {
+        services: parsed.services || defaultServices,
+        gallery: parsed.gallery || defaultGallery,
+        pricing: parsed.pricing || defaultPricing,
+        businessInfo: parsed.businessInfo || defaultBusinessInfo,
+        lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+      };
+      return memoryStore;
+    }
+  } catch (err) {
+    console.warn('Could not read from DATA_FILE_PATH:', err);
+  }
+
+  // Check /tmp fallback on serverless
+  try {
+    const tmpPath = path.join('/tmp', 'store.json');
+    if (fs.existsSync(tmpPath)) {
+      const raw = fs.readFileSync(tmpPath, 'utf-8');
+      const parsed = JSON.parse(raw) as AppStoreData;
+      memoryStore = {
+        services: parsed.services || defaultServices,
+        gallery: parsed.gallery || defaultGallery,
+        pricing: parsed.pricing || defaultPricing,
+        businessInfo: parsed.businessInfo || defaultBusinessInfo,
+        lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+      };
+      return memoryStore;
+    }
+  } catch {
+    // Ignore /tmp read error
+  }
+
+  const initialData: AppStoreData = {
+    services: defaultServices,
+    gallery: defaultGallery,
+    pricing: defaultPricing,
+    businessInfo: defaultBusinessInfo,
+    lastUpdated: new Date().toISOString(),
+  };
+
+  memoryStore = initialData;
+
+  // Try to persist initial template, ignore if read-only
+  try {
+    const dir = path.dirname(DATA_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(initialData, null, 2), 'utf-8');
+  } catch {
+    try {
+      fs.writeFileSync(path.join('/tmp', 'store.json'), JSON.stringify(initialData, null, 2), 'utf-8');
+    } catch {
+      // Memory store is active
+    }
+  }
+
+  return initialData;
 }
 
 export function saveStoreData(data: Partial<AppStoreData>): AppStoreData {
@@ -125,18 +157,32 @@ export function saveStoreData(data: Partial<AppStoreData>): AppStoreData {
     lastUpdated: new Date().toISOString(),
   };
 
-  const dir = path.dirname(DATA_FILE_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  // Always update memory store first so operations immediately succeed in-process
+  memoryStore = updated;
+
+  // Attempt write to project disk
+  try {
+    const dir = path.dirname(DATA_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), 'utf-8');
+  } catch (err) {
+    // If running in a read-only serverless environment (e.g. Vercel), fallback to /tmp
+    console.warn('Filesystem read-only (serverless). Saving to /tmp fallback:', err);
+    try {
+      fs.writeFileSync(path.join('/tmp', 'store.json'), JSON.stringify(updated, null, 2), 'utf-8');
+    } catch {
+      // Memory store is already active
+    }
   }
 
-  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(updated, null, 2), 'utf-8');
   return updated;
 }
 
 export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseConnected: boolean }> {
   const local = getStoreData();
-  
+
   try {
     const { isSupabaseConfigured, fetchSupabaseServices } = await import('./supabase-services');
     if (isSupabaseConfigured()) {
@@ -148,6 +194,10 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
           isSupabaseConnected: true,
         };
       }
+      return {
+        ...local,
+        isSupabaseConnected: true,
+      };
     }
   } catch (err) {
     console.warn('Failed to load services from Supabase, using local fallback:', err);

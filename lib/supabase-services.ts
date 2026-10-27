@@ -81,10 +81,7 @@ export async function fetchSupabaseServices(): Promise<Service[] | null> {
     }
 
     if (!data || data.length === 0) {
-      // Auto-seed default services if table is empty
-      console.log('Supabase services table is empty. Seeding defaults...');
-      await syncAllServicesToSupabase(defaultServices);
-      return defaultServices;
+      return [];
     }
 
     return data.map(dbRowToService);
