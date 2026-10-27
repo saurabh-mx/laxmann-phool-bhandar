@@ -217,10 +217,46 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
         console.warn('Supabase gallery fetch warning:', err);
       }
 
+      // 3. Fetch or auto-seed pricing estimator config
+      let pricing = local.pricing;
+      try {
+        const { fetchSupabasePricing } = await import('./supabase-pricing');
+        const dbPricing = await fetchSupabasePricing();
+        if (dbPricing && dbPricing.eventTypes?.length) {
+          pricing = dbPricing;
+        }
+      } catch (err) {
+        console.warn('Supabase pricing fetch warning:', err);
+      }
+
+      // Automatically harmonize estimator event types with latest service starting prices
+      if (pricing && pricing.eventTypes) {
+        pricing = {
+          ...pricing,
+          eventTypes: pricing.eventTypes.map((et) => {
+            const match = services.find(
+              (s) =>
+                s.id === et.id ||
+                (et.id === 'haldi' && s.id === 'engagement') ||
+                (et.id === 'bouquet' && s.id === 'bouquets')
+            );
+            if (match && match.startingNumericPrice > 0) {
+              return {
+                ...et,
+                baseMin: match.startingNumericPrice,
+                baseMax: Math.max(et.baseMax, Math.round(match.startingNumericPrice * 1.8)),
+              };
+            }
+            return et;
+          }),
+        };
+      }
+
       return {
         ...local,
         services,
         gallery,
+        pricing,
         isSupabaseConnected: true,
       };
     }
@@ -228,8 +264,33 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
     console.warn('Failed to load store data from Supabase, using local fallback:', err);
   }
 
+  // Also harmonize local pricing with local services
+  let localPricing = local.pricing;
+  if (localPricing && localPricing.eventTypes) {
+    localPricing = {
+      ...localPricing,
+      eventTypes: localPricing.eventTypes.map((et) => {
+        const match = local.services.find(
+          (s) =>
+            s.id === et.id ||
+            (et.id === 'haldi' && s.id === 'engagement') ||
+            (et.id === 'bouquet' && s.id === 'bouquets')
+        );
+        if (match && match.startingNumericPrice > 0) {
+          return {
+            ...et,
+            baseMin: match.startingNumericPrice,
+            baseMax: Math.max(et.baseMax, Math.round(match.startingNumericPrice * 1.8)),
+          };
+        }
+        return et;
+      }),
+    };
+  }
+
   return {
     ...local,
+    pricing: localPricing,
     isSupabaseConnected: false,
   };
 }

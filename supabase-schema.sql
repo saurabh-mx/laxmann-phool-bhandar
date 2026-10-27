@@ -85,3 +85,21 @@ drop policy if exists "Allow Manage Photos" on storage.objects;
 create policy "Allow Update/Delete to Photos"
   on storage.objects for all
   using ( bucket_id = 'photos' );
+
+
+-- 4. Pricing Estimator Configuration Table
+create table if not exists public.pricing_config (
+  id text primary key,
+  config jsonb not null default '{}'::jsonb,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.pricing_config enable row level security;
+
+drop policy if exists "Allow public read pricing_config" on public.pricing_config;
+create policy "Allow public read pricing_config"
+  on public.pricing_config for select using (true);
+
+drop policy if exists "Allow all write pricing_config" on public.pricing_config;
+create policy "Allow all write pricing_config"
+  on public.pricing_config for all using (true) with check (true);

@@ -199,7 +199,11 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
 
       if (res.ok && resData.success) {
         setData((prev) => ({ ...prev, pricing: resData.pricing }));
-        showToast('Pricing estimator configuration updated!');
+        showToast(
+          supabaseConnected
+            ? 'Pricing estimator configuration updated & synced to Supabase!'
+            : 'Pricing estimator configuration updated!'
+        );
       } else {
         showToast(resData.error || 'Failed to update pricing', 'error');
       }
@@ -527,8 +531,15 @@ export default function AdminDashboard({ initialData, isSupabaseConnected }: Adm
           <section className="admin-tab-content">
             <div className="content-action-bar">
               <div>
-                <h2>Package Estimator & Calculator Pricing</h2>
-                <p>Configure base prices for celebration types, scale multipliers, and optional add-ons used in the instant quote calculator.</p>
+                <div className="title-with-badge">
+                  <h2>Package Estimator & Calculator Pricing</h2>
+                  {supabaseConnected && (
+                    <span className="badge-db-supabase" title="Real-time estimator database auto-sync active">
+                      <span className="pulse-dot-green">●</span> Supabase Auto-Sync Active
+                    </span>
+                  )}
+                </div>
+                <p>Configure base prices for celebration types, scale multipliers, and optional add-ons used in the instant quote calculator on your public store.</p>
               </div>
               <button
                 type="button"
@@ -1241,7 +1252,19 @@ drop policy if exists "Allow Upload to Photos" on storage.objects;
 create policy "Allow Upload to Photos" on storage.objects for insert with check (bucket_id = 'photos');
 drop policy if exists "Allow Update/Delete to Photos" on storage.objects;
 drop policy if exists "Allow Manage Photos" on storage.objects;
-create policy "Allow Update/Delete to Photos" on storage.objects for all using (bucket_id = 'photos');`}
+create policy "Allow Update/Delete to Photos" on storage.objects for all using (bucket_id = 'photos');
+
+-- 4. Pricing Estimator Configuration Table
+create table if not exists public.pricing_config (
+  id text primary key,
+  config jsonb not null default '{}'::jsonb,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+alter table public.pricing_config enable row level security;
+drop policy if exists "Allow public read pricing_config" on public.pricing_config;
+create policy "Allow public read pricing_config" on public.pricing_config for select using (true);
+drop policy if exists "Allow all write pricing_config" on public.pricing_config;
+create policy "Allow all write pricing_config" on public.pricing_config for all using (true) with check (true);`}
                 </pre>
               </div>
 
