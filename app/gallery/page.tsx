@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import GallerySection from '@/components/GallerySection';
 import { getStoreDataAsync } from '@/lib/store';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Floral Inspiration Journal & Portfolio | Laxman Phool Bhandar',
