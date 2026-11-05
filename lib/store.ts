@@ -78,6 +78,14 @@ const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'store.json');
 
 // In-memory cache to guarantee operations succeed even on read-only serverless filesystems (e.g. Vercel)
 let memoryStore: AppStoreData | null = null;
+let cachedAsyncStore: (AppStoreData & { isSupabaseConnected: boolean }) | null = null;
+let lastSupabaseFetchTime = 0;
+const SUPABASE_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes cache to minimize Supabase Egress
+
+export function invalidateStoreCache() {
+  cachedAsyncStore = null;
+  lastSupabaseFetchTime = 0;
+}
 
 export function getStoreData(): AppStoreData {
   if (memoryStore) {
@@ -150,6 +158,7 @@ export function getStoreData(): AppStoreData {
 }
 
 export function saveStoreData(data: Partial<AppStoreData>): AppStoreData {
+  invalidateStoreCache();
   const current = getStoreData();
   const updated: AppStoreData = {
     ...current,
@@ -180,7 +189,11 @@ export function saveStoreData(data: Partial<AppStoreData>): AppStoreData {
   return updated;
 }
 
-export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseConnected: boolean }> {
+export async function getStoreDataAsync(forceRefresh = false): Promise<AppStoreData & { isSupabaseConnected: boolean }> {
+  if (!forceRefresh && cachedAsyncStore && Date.now() - lastSupabaseFetchTime < SUPABASE_CACHE_TTL_MS) {
+    return cachedAsyncStore;
+  }
+
   const local = getStoreData();
 
   try {
@@ -252,13 +265,16 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
         };
       }
 
-      return {
+      const result = {
         ...local,
         services,
         gallery,
         pricing,
         isSupabaseConnected: true,
       };
+      cachedAsyncStore = result;
+      lastSupabaseFetchTime = Date.now();
+      return result;
     }
   } catch (err) {
     console.warn('Failed to load store data from Supabase, using local fallback:', err);
@@ -288,10 +304,13 @@ export async function getStoreDataAsync(): Promise<AppStoreData & { isSupabaseCo
     };
   }
 
-  return {
+  const fallbackResult = {
     ...local,
     pricing: localPricing,
     isSupabaseConnected: false,
   };
+  cachedAsyncStore = fallbackResult;
+  lastSupabaseFetchTime = Date.now();
+  return fallbackResult;
 }
 
